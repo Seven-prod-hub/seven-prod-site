@@ -23,10 +23,34 @@
       }
       requestAnimationFrame(boucle);
     }
-    var video=hero.querySelector('video');
-    if(video && calme){ video.removeAttribute('autoplay'); video.pause(); }
-    if('IntersectionObserver' in window) new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(video && !calme){ if(visible){ var p=video.play(); if(p&&p.catch) p.catch(function(){}); } else video.pause(); } },{threshold:0}).observe(hero);
+    // Vidéo : si le téléphone bloque la lecture (économie d'énergie, appli), on passe sur l'image animée
+    var video=hero.querySelector('video'), anim=hero.querySelector('.hero-anim'), joue=false, secours=false;
+    function passerSecours(){ if(secours||!anim||calme) return; secours=true; anim.onload=function(){ anim.hidden=false; if(video){ video.pause(); video.hidden=true; } }; anim.src=anim.getAttribute('data-src'); }
+    function verifier(){ if(!joue && !secours && visible && video && video.paused && video.readyState>=2) passerSecours(); }
+    if(video){
+      video.addEventListener('playing',function(){ joue=true; });
+      video.addEventListener('error',passerSecours,true);
+      if(calme){ video.removeAttribute('autoplay'); video.pause(); }
+      else { video.addEventListener('canplay',function(){ setTimeout(verifier,900); }); setTimeout(verifier,2600); }
+    }
+    if('IntersectionObserver' in window) new IntersectionObserver(function(es){ visible=es[0].isIntersecting; if(video && !calme && !secours){ if(visible){ var p=video.play(); if(p&&p.catch) p.catch(function(e){ if(e && (e.name==='NotAllowedError'||e.name==='NotSupportedError')) passerSecours(); }); } else video.pause(); } },{threshold:0}).observe(hero);
     requestAnimationFrame(boucle);
+  }
+
+  // Menu sur téléphone
+  var mb=document.querySelector('.menu-btn'), menu=document.getElementById('menu');
+  if(mb && menu){
+    function ouvrir(o){ menu.classList.toggle('ouvert',o); menu.inert=!o; mb.setAttribute('aria-expanded',o?'true':'false'); mb.querySelector('.lbl-menu').textContent=o?'Fermer':'Menu'; document.body.classList.toggle('menu-ouvert',o); }
+    mb.addEventListener('click',function(){ ouvrir(!menu.classList.contains('ouvert')); });
+    menu.addEventListener('click',function(e){ if(e.target.closest('a')) ouvrir(false); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape' && menu.classList.contains('ouvert')){ ouvrir(false); mb.focus(); } });
+    addEventListener('resize',function(){ if(innerWidth>880) ouvrir(false); });
+  }
+
+  // Formules sur téléphone : la bande s'ouvre sur la formule conseillée
+  var tarifs=document.querySelector('.tarifs'), conseil=tarifs && tarifs.querySelector('[data-feutre]');
+  if(tarifs && conseil && matchMedia('(max-width:760px)').matches){
+    tarifs.scrollLeft = conseil.getBoundingClientRect().left - tarifs.getBoundingClientRect().left + tarifs.scrollLeft - (tarifs.clientWidth - conseil.offsetWidth)/2;
   }
 
   // Traits de feutre : ils se dessinent quand le bloc entre à l'écran
