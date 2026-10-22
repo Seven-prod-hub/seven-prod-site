@@ -168,7 +168,7 @@ p{margin:0}
 .bande{position:relative;background:var(--film);padding:30px clamp(12px,1.4vw,18px) 34px;box-shadow:0 26px 50px -30px rgba(0,0,0,.6)}
 .bande:nth-child(2){margin-inline-start:clamp(0px,5vw,72px);transform:rotate(.35deg)}
 .bande:nth-child(1){transform:rotate(-.25deg)}
-.bande::before,.bande::after{content:"";position:absolute;left:8px;right:8px;height:11px;background:radial-gradient(closest-side,#D8D5CE 76%,transparent 82%) 0 0/24px 11px repeat-x;opacity:.9}
+.bande::before,.bande::after{content:"";position:absolute;left:8px;right:8px;height:9px;background:radial-gradient(closest-side,#CFCBC3 68%,transparent 76%) 0 0/18px 9px repeat-x;opacity:.85}
 .bande::before{top:9px}
 .bande::after{bottom:9px}
 .cases{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -183,13 +183,18 @@ p{margin:0}
 .choisie .note{right:-4px;top:-46px}
 .glisser{display:none}
 @media (max-width:760px){
-  .bande,.bande:nth-child(2){transform:none;margin-inline:calc(-1 * var(--gut)) calc(-1 * var(--gut-r))}
-  .cases{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:12px;padding-inline:var(--gut) var(--gut-r);scrollbar-width:none;margin-inline:calc(-1 * clamp(12px,1.4vw,18px))}
-  .cases::-webkit-scrollbar{display:none}
-  .case{flex:0 0 80%;scroll-snap-align:center}
-  .choisie .note{display:none}
-  .choisie .trait{inset:-6% -4% -18% -4%;width:108%;height:124%}
-  .cases{padding-block:10px}
+  /* téléphone : une seule bande verticale qui descend avec la journée, images en pleine largeur */
+  .planche{gap:0;margin-top:40px}
+  .bande,.bande:nth-child(2){transform:none;margin-inline:calc(-1 * var(--gut)) calc(-1 * var(--gut-r));padding:16px 32px;box-shadow:none}
+  .bande:first-child{padding-bottom:9px}
+  .bande:nth-child(2){padding-top:10px;margin-top:-1px}
+  .bande::before,.bande::after{top:0;bottom:0;left:10px;right:auto;width:12px;height:auto;background:radial-gradient(closest-side,#CFCBC3 64%,transparent 74%) 0 0/12px 19px repeat-y}
+  .bande::after{left:auto;right:10px}
+  .cases{display:flex;flex-direction:column;gap:20px}
+  .case figcaption{font-size:13.5px}
+  .choisie{margin-top:18px}
+  .choisie .note{top:-30px;left:2px;right:auto;font-size:22px}
+  .choisie .trait{inset:-7% -5% -20% -5%;width:110%;height:127%}
   .glisser{display:block;margin-top:14px;font-size:22px;color:var(--gris)}
   .planche-tete{grid-template-columns:minmax(0,1fr)}
 }
