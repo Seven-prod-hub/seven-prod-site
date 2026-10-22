@@ -14,18 +14,25 @@
   // Viseur : compteur de la caméra (25 images/s) et léger parallaxe, seulement quand le héros est visible
   var hero=document.querySelector('.hero'), tc=document.getElementById('tc'), media=document.querySelector('.hero-img');
   if(hero){
+    var parallaxe=!calme && matchMedia('(min-width:701px) and (hover:hover)').matches;
     var visible=true, debut=performance.now(), offset=(+(tc&&tc.getAttribute('data-start'))||0)*25;
     function p2(n){ return (n<10?'0':'')+n; }
     function boucle(t){
       if(visible){
         if(tc){ var f=offset+Math.floor((t-debut)/40); tc.textContent=p2(Math.floor(f/90000))+':'+p2(Math.floor(f/1500)%60)+':'+p2(Math.floor(f/25)%60)+':'+p2(f%25); }
-        if(media && !calme){ var y=Math.min(window.scrollY, hero.offsetHeight); media.style.transform='translate3d(0,'+(y*0.18).toFixed(1)+'px,0)'; }
+        if(media && parallaxe){ var y=Math.min(window.scrollY, hero.offsetHeight); media.style.transform='translate3d(0,'+(y*0.18).toFixed(1)+'px,0)'; }
       }
       requestAnimationFrame(boucle);
     }
     // Vidéo : si le téléphone bloque la lecture (économie d'énergie, appli), on passe sur l'image animée
-    var video=hero.querySelector('video'), anim=hero.querySelector('.hero-anim'), joue=false, secours=false;
-    function passerSecours(){ if(secours||!anim||calme) return; secours=true; anim.onload=function(){ anim.hidden=false; if(video){ video.pause(); video.hidden=true; } }; anim.src=anim.getAttribute('data-src'); }
+    var video=hero.querySelector('video'), diapo=hero.querySelector('.hero-diapo'), joue=false, secours=false;
+    function passerSecours(){
+      if(secours||!diapo||calme) return; secours=true;
+      var ims=diapo.querySelectorAll('img'), k=0;
+      ims.forEach(function(im){ im.src=im.getAttribute('data-src'); });
+      ims[0].onload=function(){ diapo.hidden=false; if(video){ video.pause(); video.hidden=true; } requestAnimationFrame(function(){ ims[0].classList.add('actif'); }); };
+      setInterval(function(){ if(!visible) return; ims[k].classList.remove('actif'); k=(k+1)%ims.length; ims[k].classList.add('actif'); },2800);
+    }
     function verifier(){ if(!joue && !secours && visible && video && video.paused && video.readyState>=2) passerSecours(); }
     if(video){
       video.addEventListener('playing',function(){ joue=true; });
